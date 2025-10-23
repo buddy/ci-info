@@ -23,6 +23,14 @@ import {
   TXT_CI_INFO,
 } from "./texts";
 
+export type {
+  CiInfo,
+  IBuddyCiInfo,
+  ICircleCiInfo,
+  ICustomCiInfo,
+  IGithubActionCiInfo,
+} from "./types";
+
 async function getGithubPullRequestCommit(
   logger?: (message: string) => unknown,
 ) {

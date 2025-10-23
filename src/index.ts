@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { gitExec } from "./exec";
+import { gitExec } from "./exec.js";
 import {
   CI,
   CiInfo,
@@ -7,7 +7,7 @@ import {
   ICircleCiInfo,
   ICustomCiInfo,
   IGithubActionCiInfo,
-} from "./types";
+} from "./types.js";
 import {
   ERR_BASE_BRANCH_NOT_DEFINED,
   ERR_GETTING_BASE_COMMIT,
@@ -21,16 +21,16 @@ import {
   ERR_MISSING_HEAD_COMMIT_IN_FILE,
   ERR_READING_FILE_WITH_HEAD_COMMIT,
   TXT_CI_INFO,
-} from "./texts";
+} from "./texts.js";
 
-export { CI } from "./types";
+export { CI } from "./types.js";
 export type {
   CiInfo,
   IBuddyCiInfo,
   ICircleCiInfo,
   ICustomCiInfo,
   IGithubActionCiInfo,
-} from "./types";
+} from "./types.js";
 
 async function getGithubPullRequestCommit(
   logger?: (message: string) => unknown,

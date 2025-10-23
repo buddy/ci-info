@@ -1,4 +1,4 @@
-import { CiInfo, CI } from "./types";
+import { CiInfo, CI } from "./types.js";
 
 export const ERR_GITHUB_EVENT_PATH_NOT_FOUND = `GITHUB_EVENT_PATH is not defined`;
 export const ERR_MISSING_FILE_WITH_HEAD_COMMIT = (

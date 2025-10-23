@@ -6,8 +6,9 @@
     "skipLibCheck": true,
     "declaration": true,
     "sourceMap": true,
+    "module": "node20",
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "include": ["src/**/*"]
 }

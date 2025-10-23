@@ -28,7 +28,7 @@ async function buildESM() {
 async function buildCJS() {
   await esbuild.build({
     ...baseConfig,
-    outfile: "dist/index.js",
+    outfile: "dist/index.cjs",
     format: "cjs",
   });
   console.log("CJS build complete");

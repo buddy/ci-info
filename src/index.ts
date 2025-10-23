@@ -23,6 +23,7 @@ import {
   TXT_CI_INFO,
 } from "./texts";
 
+export { CI } from "./types";
 export type {
   CiInfo,
   IBuddyCiInfo,

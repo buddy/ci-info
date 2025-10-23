@@ -1,6 +1,6 @@
 {
   "name": "@buddy-works/ci-info",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Buddy CI Info",
   "type": "module",
   "main": "./dist/index.js",

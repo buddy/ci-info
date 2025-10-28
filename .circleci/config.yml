@@ -1,0 +1,28 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.2.0
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:22.0
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm
+          command: npm install -g pnpm@9
+      - run:
+          name: Install dependencies
+          command: pnpm install --frozen-lockfile
+      - run:
+          name: Build library
+          command: pnpm run build
+      - run:
+          name: Run integration tests
+          command: pnpm test
+
+workflows:
+  test-workflow:
+    jobs:
+      - test

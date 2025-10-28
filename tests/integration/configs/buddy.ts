@@ -6,13 +6,7 @@ import type { IBuddyCiInfo } from "../../../src/index.js";
 export const buddyConfig: PlatformTestConfig = {
   expectedCiType: CI.BUDDY,
   platformName: "Buddy CI",
-  requiredFields: [
-    "pipelineName",
-    "pipelineId",
-    "actionId",
-    "executionId",
-    "actionExecutionId",
-  ],
+  requiredFields: ["pipelineName", "pipelineId", "actionId", "executionId"],
 
   customAssertions: (ciInfo) => {
     // Type guard to access Buddy-specific fields
@@ -36,7 +30,6 @@ export const buddyConfig: PlatformTestConfig = {
     // Assert execution IDs
     expect(buddyInfo.executionId).toBeTruthy();
     console.log(`  ✓ Execution ID: ${buddyInfo.executionId}`);
-    console.log(`  ✓ Action Execution ID: ${buddyInfo.actionExecutionId}`);
 
     // Assert invoker ID if present
     if (buddyInfo.invokerId) {

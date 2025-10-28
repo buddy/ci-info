@@ -215,7 +215,7 @@ export async function getCiAndGitInfo({
       ? undefined
       : forceBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
-    const invokerId = Number(process.env.BUDDY_INVOKER_ID);
+    const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
     const actionId = Number(process.env.BUDDY_ACTION_ID);
     const executionId = process.env.BUDDY_RUN_HASH;

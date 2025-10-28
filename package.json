@@ -9,8 +9,11 @@
   ],
   "scripts": {
     "lint": "eslint \"**/*\"",
+    "lint:types": "tsc --skipLibCheck --noEmit",
     "format": "prettier --write \"**/*.{js,ts,json,md}\"",
-    "build": "node build.js"
+    "build": "node build.js",
+    "test": "vitest run",
+    "test:integration": "vitest run tests/integration"
   },
   "keywords": [
     "ci",
@@ -27,6 +30,8 @@
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
+    "@types/cross-spawn": "6.0.6",
+    "@types/node": "22.15.17",
     "@typescript-eslint/eslint-plugin": "8.46.2",
     "@typescript-eslint/parser": "8.46.2",
     "esbuild": "0.25.11",
@@ -38,8 +43,7 @@
     "prettier": "3.6.2",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.2",
-    "@types/node": "22.15.17",
-    "@types/cross-spawn": "6.0.6"
+    "vitest": "4.0.4"
   },
   "exports": {
     ".": {

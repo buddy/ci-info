@@ -7,8 +7,8 @@
     "declaration": true,
     "sourceMap": true,
     "module": "node20",
-    "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["dist", "node_modules"]
 }

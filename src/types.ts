@@ -22,6 +22,7 @@ export enum CI {
     pipelineId?: number;
     actionId?: number;
     executionId?: string;
+    actionExecutionId?: string;
     invokerId?: number;
     commitDetails?: ICommitDetails;
   }

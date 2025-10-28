@@ -3,8 +3,8 @@ import {
   getBranchName,
   getCommitHash,
   formattedCiInfo,
-} from '../../../src/index.js';
-import type { TestResults, PlatformTestConfig } from './types.js';
+} from "../../../src/index.js";
+import type { TestResults, PlatformTestConfig } from "./types.js";
 import {
   assertCiType,
   assertValidBranchName,
@@ -12,7 +12,7 @@ import {
   assertValidCommitDetails,
   assertFormattedOutput,
   assertRequiredFields,
-} from './matchers.js';
+} from "./matchers.js";
 
 /**
  * Run all exported functions and collect results
@@ -35,22 +35,25 @@ export async function runAllFunctions(): Promise<TestResults> {
  * Print detected CI information to console for debugging
  */
 export function printCiInfo(results: TestResults): void {
-  console.log('\n' + '='.repeat(60));
-  console.log('DETECTED CI INFORMATION');
-  console.log('='.repeat(60));
-  console.log('\n📋 Formatted Output:\n');
+  console.log("\n" + "=".repeat(60));
+  console.log("DETECTED CI INFORMATION");
+  console.log("=".repeat(60));
+  console.log("\n📋 Formatted Output:\n");
   console.log(results.formattedInfo);
-  console.log('\n📦 Raw CI Info Object:\n');
+  console.log("\n📦 Raw CI Info Object:\n");
   console.log(JSON.stringify(results.ciInfo, undefined, 2));
-  console.log('\n🌿 Branch Name:', results.branchName);
-  console.log('🔖 Commit Hash:', results.commitHash);
-  console.log('\n' + '='.repeat(60) + '\n');
+  console.log("\n🌿 Branch Name:", results.branchName);
+  console.log("🔖 Commit Hash:", results.commitHash);
+  console.log("\n" + "=".repeat(60) + "\n");
 }
 
 /**
  * Run common assertions for all CI platforms
  */
-export function assertCommonFields(results: TestResults, config: PlatformTestConfig): void {
+export function assertCommonFields(
+  results: TestResults,
+  config: PlatformTestConfig,
+): void {
   // Assert CI type
   assertCiType(results.ciInfo, config.expectedCiType);
 
@@ -90,7 +93,9 @@ export function assertCommonFields(results: TestResults, config: PlatformTestCon
 /**
  * Main test runner for a CI platform
  */
-export async function testCiPlatform(config: PlatformTestConfig): Promise<void> {
+export async function testCiPlatform(
+  config: PlatformTestConfig,
+): Promise<void> {
   console.log(`\n🚀 Testing ${config.platformName} detection...\n`);
 
   // Run all functions

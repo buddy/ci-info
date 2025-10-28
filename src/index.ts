@@ -215,10 +215,11 @@ export async function getCiAndGitInfo({
       ? undefined
       : forceBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
-    const invokerId = Number(process.env.BUDDY_INVOKER_ID);
+    const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
     const actionId = Number(process.env.BUDDY_ACTION_ID);
     const executionId = process.env.BUDDY_RUN_HASH;
+    const actionExecutionId = process.env.BUDDY_ACTION_RUN_HASH;
 
     return {
       ci: CI.BUDDY,
@@ -231,6 +232,7 @@ export async function getCiAndGitInfo({
       pipelineId: Number.isNaN(pipelineId) ? undefined : pipelineId,
       actionId: Number.isNaN(actionId) ? undefined : actionId,
       executionId,
+      actionExecutionId,
       invokerId: Number.isNaN(invokerId) ? undefined : invokerId,
       commitDetails: await getCommitDetails(commit),
     } satisfies IBuddyCiInfo;

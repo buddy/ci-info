@@ -11,7 +11,7 @@ const baseConfig = {
   sourcemap: false,
   platform: "node",
   plugins: [nodeExternalsPlugin()],
-  tsconfig: "./tsconfig.json",
+  tsconfig: "./tsconfig.build.json",
 };
 
 // Build ESM version
@@ -36,7 +36,7 @@ async function buildCJS() {
 
 // Generate type definitions
 async function generateTypes() {
-  execSync("tsc --emitDeclarationOnly --declaration --outDir dist/types");
+  execSync("tsc --project tsconfig.build.json --emitDeclarationOnly --declaration --outDir dist/types");
   console.log("Type definitions generated");
 }
 

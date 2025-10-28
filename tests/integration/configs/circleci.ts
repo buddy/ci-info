@@ -18,7 +18,7 @@ export const circleCiConfig: PlatformTestConfig = {
 
     // Assert execution URL (build URL)
     expect(circleInfo.executionUrl).toBeTruthy();
-    expect(circleInfo.executionUrl).toMatch(/^https:\/\/circleci\.com\//);
+    expect(circleInfo.executionUrl).toMatch(/^https:\/\/(app\.)?circleci\.com\//);
     console.log(`  ✓ Build URL: ${circleInfo.executionUrl}`);
 
     // Assert CircleCI environment variable

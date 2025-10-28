@@ -1,35 +1,23 @@
 import { expect } from "vitest";
 import type { CI, CiInfo } from "../../../src/index.js";
 
-/**
- * Assert that the detected CI type matches expected
- */
 export function assertCiType(ciInfo: CiInfo, expectedType: CI) {
   expect(ciInfo.ci).toBe(expectedType);
 }
 
-/**
- * Assert that branch name is valid (non-empty string)
- */
 export function assertValidBranchName(branchName: string) {
   expect(branchName).toBeTruthy();
   expect(typeof branchName).toBe("string");
   expect(branchName.length).toBeGreaterThan(0);
 }
 
-/**
- * Assert that commit hash is valid (40 character hex string for full SHA)
- */
 export function assertValidCommitHash(commitHash: string) {
   expect(commitHash).toBeTruthy();
   expect(typeof commitHash).toBe("string");
   expect(commitHash).toMatch(/^[0-9a-f]+$/i);
-  expect(commitHash.length).toBeGreaterThanOrEqual(7); // At least short SHA
+  expect(commitHash.length).toBeGreaterThanOrEqual(7);
 }
 
-/**
- * Assert that required fields exist in the CI info object
- */
 export function assertRequiredFields(ciInfo: CiInfo, fields: string[]) {
   for (const field of fields) {
     const value = (ciInfo as unknown as Record<string, unknown>)[field];
@@ -37,9 +25,6 @@ export function assertRequiredFields(ciInfo: CiInfo, fields: string[]) {
   }
 }
 
-/**
- * Assert that commit details are valid
- */
 export function assertValidCommitDetails(ciInfo: CiInfo) {
   if (ciInfo.commitDetails) {
     expect(ciInfo.commitDetails.authorName).toBeTruthy();
@@ -49,9 +34,6 @@ export function assertValidCommitDetails(ciInfo: CiInfo) {
   }
 }
 
-/**
- * Assert formatted output contains expected information
- */
 export function assertFormattedOutput(formatted: string, ciInfo: CiInfo) {
   expect(formatted).toContain(ciInfo.ci);
   if (ciInfo.branch) {

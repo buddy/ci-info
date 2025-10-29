@@ -3,8 +3,6 @@
   - refs/heads/main
   fail_on_prepare_env_warning: true
   variables:
-  - key: a
-    value: 1
   - key: npmrc
     value: "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
   actions:

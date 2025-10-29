@@ -5,6 +5,8 @@
   variables:
   - key: a
     value: 1
+  - key: npmrc
+    value: "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
   actions:
   - action: Install packages
     type: BUILD

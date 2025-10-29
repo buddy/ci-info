@@ -74,7 +74,7 @@ export async function getBranchName({
 }: {
   optional?: boolean;
   logger?: (message: string) => unknown;
-}) {
+} = {}) {
   let branch = "";
   try {
     branch = await gitExec(["rev-parse", "--abbrev-ref", "HEAD"]);
@@ -189,7 +189,7 @@ export async function getCiAndGitInfo({
   baseBranch?: string;
   skipBaseCommitDiscovery?: boolean;
   logger?: (message: string) => unknown;
-}) {
+} = {}): Promise<CiInfo> {
   const isBuddy = process.env.BUDDY === "true";
   const isGithubAction = process.env.GITHUB_ACTIONS === "true";
   const isCircleCI = process.env.CIRCLECI === "true";
@@ -218,6 +218,7 @@ export async function getCiAndGitInfo({
     const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
     const actionId = Number(process.env.BUDDY_ACTION_ID);
+
     const executionId = process.env.BUDDY_RUN_HASH;
     const actionExecutionId = process.env.BUDDY_ACTION_RUN_HASH;
 

@@ -2,7 +2,9 @@
   refs:
   - refs/heads/main
   fail_on_prepare_env_warning: true
-  variables: []
+  variables:
+  - key: a
+    value: 1
   actions:
   - action: Install packages
     type: BUILD

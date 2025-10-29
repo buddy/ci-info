@@ -10,9 +10,6 @@
     pipeline: CI Integration Tests
   variables:
   - key: VERSION_BUMP_TYPE
-  - key: npmrc
-    value: |
-      //registry.npmjs.org/:_authToken=${NPM_TOKEN}
   actions:
   - action: Select version bump
     type: WAIT_FOR_VARIABLES

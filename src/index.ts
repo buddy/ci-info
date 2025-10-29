@@ -74,7 +74,7 @@ export async function getBranchName({
 }: {
   optional?: boolean;
   logger?: (message: string) => unknown;
-}) {
+} = {}) {
   let branch = "";
   try {
     branch = await gitExec(["rev-parse", "--abbrev-ref", "HEAD"]);
@@ -189,15 +189,15 @@ export async function getCiAndGitInfo({
   baseBranch?: string;
   skipBaseCommitDiscovery?: boolean;
   logger?: (message: string) => unknown;
-}) {
+} = {}): Promise<CiInfo> {
   const isBuddy = process.env.BUDDY === "true";
   const isGithubAction = process.env.GITHUB_ACTIONS === "true";
   const isCircleCI = process.env.CIRCLECI === "true";
 
-  const forceTag = process.env.SNAPSHOTS_TAG;
-  const forceBranch = process.env.SNAPSHOTS_BRANCH;
-  const forceCommit = process.env.SNAPSHOTS_COMMIT;
-  const forceBaseCommit = process.env.SNAPSHOTS_BASE_COMMIT;
+  const forcedTag = process.env.FORCED_ENV_TAG;
+  const forcedBranch = process.env.FORCED_ENV_BRANCH;
+  const forcedCommit = process.env.FORCED_ENV_COMMIT;
+  const forcedBaseCommit = process.env.FORCED_ENV_BASE_COMMIT;
 
   const withoutBaseCommit = baseBranch === undefined || skipBaseCommitDiscovery;
 
@@ -205,19 +205,20 @@ export async function getCiAndGitInfo({
     const pullRequestNumber = Number(process.env.BUDDY_RUN_PR_NO);
     const isPR = !!pullRequestNumber;
     const branch =
-      forceBranch ||
+      forcedBranch ||
       (isPR
         ? process.env.BUDDY_RUN_PR_HEAD_BRANCH
         : process.env.BUDDY_EXECUTION_BRANCH);
-    const tag = forceTag || process.env.BUDDY_EXECUTION_TAG;
-    const commit = forceCommit || process.env.BUDDY_EXECUTION_REVISION;
+    const tag = forcedTag || process.env.BUDDY_EXECUTION_TAG;
+    const commit = forcedCommit || process.env.BUDDY_EXECUTION_REVISION;
     const baseCommit = withoutBaseCommit
       ? undefined
-      : forceBaseCommit ||
+      : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
     const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
     const actionId = Number(process.env.BUDDY_ACTION_ID);
+
     const executionId = process.env.BUDDY_RUN_HASH;
     const actionExecutionId = process.env.BUDDY_ACTION_RUN_HASH;
 
@@ -246,17 +247,17 @@ export async function getCiAndGitInfo({
         ? Number(process.env.GITHUB_REF.split("/")[2])
         : undefined;
     const branch =
-      forceBranch ||
+      forcedBranch ||
       (isPR ? process.env.GITHUB_HEAD_REF : process.env.GITHUB_REF_NAME);
-    const tag = forceTag || (isTag ? process.env.GITHUB_REF_NAME : undefined);
+    const tag = forcedTag || (isTag ? process.env.GITHUB_REF_NAME : undefined);
     const commit =
-      forceCommit ||
+      forcedCommit ||
       (isPR
         ? await getGithubPullRequestCommit(logger)
         : process.env.GITHUB_SHA);
     const baseCommit = withoutBaseCommit
       ? undefined
-      : forceBaseCommit ||
+      : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
     return {
       ci: CI.GITHUB_ACTION,
@@ -275,12 +276,12 @@ export async function getCiAndGitInfo({
     const pullRequestNumber = isPR
       ? Number(process.env.CIRCLE_PR_NUMBER)
       : undefined;
-    const branch = forceBranch || process.env.CIRCLE_BRANCH;
-    const tag = forceTag || process.env.CIRCLE_TAG;
-    const commit = forceCommit || process.env.CIRCLE_SHA1;
+    const branch = forcedBranch || process.env.CIRCLE_BRANCH;
+    const tag = forcedTag || process.env.CIRCLE_TAG;
+    const commit = forcedCommit || process.env.CIRCLE_SHA1;
     const baseCommit = withoutBaseCommit
       ? undefined
-      : forceBaseCommit ||
+      : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch) : undefined);
     return {
       ci: CI.CIRCLE_CI,
@@ -295,10 +296,10 @@ export async function getCiAndGitInfo({
   }
 
   const branch =
-    forceBranch ||
+    forcedBranch ||
     (await getBranchName({ optional: withoutBaseCommit, logger }));
   const commit =
-    forceCommit ||
+    forcedCommit ||
     (await getCommitHash({ optional: withoutBaseCommit, logger }));
 
   return {
@@ -308,7 +309,7 @@ export async function getCiAndGitInfo({
     baseCommit: withoutBaseCommit
       ? undefined
       : branch && branch !== baseBranch
-        ? forceBaseCommit || (await getBaseCommit(baseBranch, branch))
+        ? forcedBaseCommit || (await getBaseCommit(baseBranch, branch))
         : undefined,
     commitDetails: await getCommitDetails(commit),
   } satisfies ICustomCiInfo;

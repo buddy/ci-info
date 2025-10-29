@@ -61,7 +61,7 @@
     execute_commands:
     - git config user.email "ci@buddy.works"
     - git config user.name "Buddy CI"
-    - "pnpm version --preid dev $VERSION_BUMP_TYPE -m \"chore(release): bump version to %s\""
+    - "pnpm version --preid rc $VERSION_BUMP_TYPE -m \"chore(release): bump version to %s\""
     setup_commands:
     - npm i pnpm -g
     volume_mappings:
@@ -79,7 +79,7 @@
     docker_image_name: library/node
     docker_image_tag: 22
     execute_commands:
-    - pnpm publish --no-git-checks --access public
+    - pnpm publish --no-git-checks --access public --tag rc
     setup_commands:
     - npm i pnpm -g
     volume_mappings:

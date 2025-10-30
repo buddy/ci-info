@@ -210,9 +210,9 @@ export async function getCiAndGitInfo({
       forcedBranch ||
       (isPR
         ? process.env.BUDDY_RUN_PR_HEAD_BRANCH
-        : process.env.BUDDY_EXECUTION_BRANCH);
-    const tag = forcedTag || process.env.BUDDY_EXECUTION_TAG;
-    const commit = forcedCommit || process.env.BUDDY_EXECUTION_REVISION;
+        : process.env.BUDDY_RUN_BRANCH);
+    const tag = forcedTag || process.env.BUDDY_RUN_TAG;
+    const commit = forcedCommit || process.env.BUDDY_RUN_COMMIT;
 
     const baseCommit = withoutBaseCommit
       ? undefined

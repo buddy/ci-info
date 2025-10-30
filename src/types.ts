@@ -5,6 +5,13 @@ export enum CI {
   NONE = "NONE",
 }
 
+export enum REF_TYPE {
+  BRANCH = "BRANCH",
+  TAG = "TAG",
+  PULL_REQUEST = "PULL_REQUEST",
+  WILDCARD = "WILDCARD",
+}
+
 export interface ICommitDetails {
   authorName?: string;
   authorEmail?: string;
@@ -20,6 +27,8 @@ export type CiInfo =
 
 export interface ISharedCiInfo {
   ci: CI;
+  refType: REF_TYPE;
+  refName?: string;
   branch?: string;
   pullRequestNumber?: number;
   tag?: string;

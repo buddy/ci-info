@@ -7,6 +7,7 @@ import {
   ICircleCiInfo,
   ICustomCiInfo,
   IGithubActionCiInfo,
+  REF_TYPE,
 } from "./types.js";
 import {
   ERR_BASE_BRANCH_NOT_DEFINED,
@@ -204,6 +205,7 @@ export async function getCiAndGitInfo({
   if (isBuddy) {
     const pullRequestNumber = Number(process.env.BUDDY_RUN_PR_NO);
     const isPR = !!pullRequestNumber;
+
     const branch =
       forcedBranch ||
       (isPR
@@ -211,19 +213,25 @@ export async function getCiAndGitInfo({
         : process.env.BUDDY_EXECUTION_BRANCH);
     const tag = forcedTag || process.env.BUDDY_EXECUTION_TAG;
     const commit = forcedCommit || process.env.BUDDY_EXECUTION_REVISION;
+
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
+
     const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
     const actionId = Number(process.env.BUDDY_ACTION_ID);
 
     const executionId = process.env.BUDDY_RUN_HASH;
     const actionExecutionId = process.env.BUDDY_ACTION_RUN_HASH;
+    const refType = process.env.BUDDY_RUN_REF_TYPE as REF_TYPE;
+    const refName = process.env.BUDDY_RUN_REF_NAME;
 
     return {
       ci: CI.BUDDY,
+      refType,
+      refName,
       branch,
       tag,
       pullRequestNumber: isPR ? pullRequestNumber : undefined,
@@ -242,25 +250,41 @@ export async function getCiAndGitInfo({
   if (isGithubAction) {
     const isPR = process.env.GITHUB_EVENT_NAME === "pull_request";
     const isTag = process.env.GITHUB_REF_TYPE === "tag";
+
+    const refName = process.env.GITHUB_REF_NAME;
+
     const pullRequestNumber =
       isPR && process.env.GITHUB_REF
         ? Number(process.env.GITHUB_REF.split("/")[2])
         : undefined;
+
     const branch =
-      forcedBranch ||
-      (isPR ? process.env.GITHUB_HEAD_REF : process.env.GITHUB_REF_NAME);
-    const tag = forcedTag || (isTag ? process.env.GITHUB_REF_NAME : undefined);
+      forcedBranch || (isPR ? process.env.GITHUB_HEAD_REF : refName);
+
+    const tag = forcedTag || (isTag ? refName : undefined);
     const commit =
       forcedCommit ||
       (isPR
         ? await getGithubPullRequestCommit(logger)
         : process.env.GITHUB_SHA);
+
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
+
+    const refType = (() => {
+      const githubRefType = process.env.GITHUB_REF_TYPE?.toUpperCase();
+      if (githubRefType === REF_TYPE.BRANCH) return REF_TYPE.BRANCH;
+      if (githubRefType === REF_TYPE.TAG) return REF_TYPE.TAG;
+      if (isPR) return REF_TYPE.PULL_REQUEST;
+      return REF_TYPE.WILDCARD;
+    })();
+
     return {
       ci: CI.GITHUB_ACTION,
+      refType,
+      refName,
       branch,
       tag,
       pullRequestNumber,
@@ -276,15 +300,32 @@ export async function getCiAndGitInfo({
     const pullRequestNumber = isPR
       ? Number(process.env.CIRCLE_PR_NUMBER)
       : undefined;
+
     const branch = forcedBranch || process.env.CIRCLE_BRANCH;
     const tag = forcedTag || process.env.CIRCLE_TAG;
     const commit = forcedCommit || process.env.CIRCLE_SHA1;
+
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
         (isPR ? await getBaseCommit(baseBranch, branch) : undefined);
+
+    const refType = (() => {
+      if (isPR) return REF_TYPE.PULL_REQUEST;
+      if (branch) return REF_TYPE.BRANCH;
+      if (tag) return REF_TYPE.TAG;
+      return REF_TYPE.WILDCARD;
+    })();
+
+    const refName = (() => {
+      if (branch) return branch;
+      if (tag) return tag;
+    })();
+
     return {
       ci: CI.CIRCLE_CI,
+      refType,
+      refName,
       branch,
       tag,
       pullRequestNumber,
@@ -302,8 +343,17 @@ export async function getCiAndGitInfo({
     forcedCommit ||
     (await getCommitHash({ optional: withoutBaseCommit, logger }));
 
+  const refType = (() => {
+    if (branch) return REF_TYPE.BRANCH;
+    return REF_TYPE.WILDCARD;
+  })();
+
+  const refName = branch || undefined;
+
   return {
     ci: CI.NONE,
+    refType,
+    refName,
     branch,
     commit,
     baseCommit: withoutBaseCommit

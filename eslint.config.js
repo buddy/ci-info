@@ -12,6 +12,14 @@ export default [
     rules: {
       "unicorn/prefer-top-level-await": "off",
       "unicorn/prefer-global-this": "off",
+      "unicorn/prevent-abbreviations": [
+        2,
+        {
+          replacements: {
+            ref: false,
+          },
+        },
+      ],
     },
   },
   ...tseslint.configs.recommended,

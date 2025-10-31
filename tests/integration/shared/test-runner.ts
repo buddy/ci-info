@@ -1,7 +1,7 @@
 import {
   getCiAndGitInfo,
-  getBranchName,
-  getCommitHash,
+  getBranchNameWithGit,
+  getCommitHashWithGit,
   formattedCiInfo,
 } from "../../../src/index.js";
 import type { TestResults, PlatformTestConfig } from "./types.js";
@@ -16,8 +16,8 @@ import {
 
 export async function runAllFunctions(): Promise<TestResults> {
   const ciInfo = await getCiAndGitInfo({});
-  const branchName = await getBranchName({});
-  const commitHash = await getCommitHash({});
+  const branchName = await getBranchNameWithGit({});
+  const commitHash = await getCommitHashWithGit({});
   const formattedInfo = formattedCiInfo(ciInfo);
 
   return {

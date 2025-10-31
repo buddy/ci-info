@@ -209,7 +209,7 @@ export async function getCiAndGitInfo({
 }: {
   baseBranch?: string;
   skipBaseCommitDiscovery?: boolean;
-  // Whether to skip errors related to git commands
+  // If false, errors related to git commands will throw exceptions
   optionalGit?: boolean;
   logger?: (message: string) => unknown;
 } = {}): Promise<CiInfo> {

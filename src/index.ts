@@ -11,6 +11,7 @@ import {
 } from "./types.js";
 import {
   ERR_BASE_BRANCH_NOT_DEFINED,
+  ERR_COMMIT_DETAILS_NOT_AVAILABLE,
   ERR_GETTING_BASE_COMMIT,
   ERR_GETTING_BRANCH_NAME,
   ERR_GETTING_COMMIT_HASH,
@@ -69,7 +70,7 @@ async function getGithubPullRequestCommit(
   return payload.pull_request.head.sha;
 }
 
-export async function getBranchName({
+export async function getBranchNameWithGit({
   optional,
   logger,
 }: {
@@ -95,7 +96,7 @@ export async function getBranchName({
   return branch?.trim();
 }
 
-export async function getCommitHash({
+export async function getCommitHashWithGit({
   optional,
   logger,
 }: {
@@ -121,7 +122,7 @@ export async function getCommitHash({
   return commit;
 }
 
-async function getBaseCommit(
+async function getBaseCommitWithGit(
   baseBranch: string | undefined,
   headBranch?: string,
   requiredOriginPrefix?: boolean,
@@ -162,33 +163,54 @@ async function getBaseCommit(
   return commit;
 }
 
-async function getCommitDetails(commitHash?: string) {
-  if (commitHash) {
+async function getCommitDetailsWithGit({
+  commitHash,
+  optionalGit,
+  logger,
+}: {
+  commitHash?: string;
+  optionalGit?: boolean;
+  logger?: (message: string) => unknown;
+} = {}) {
+  if (!commitHash) return;
+
+  try {
     const commitDetails = await gitExec([
       "show",
       "--no-patch",
       "--pretty=%an%n%ae%n%ct%n%B",
       commitHash,
     ]);
+
     const [authorName, authorEmail, authorDate, message] =
       commitDetails.split("\n");
     const authorDateNumber = Number(authorDate);
+
     return {
       authorName,
       authorEmail,
       authorDate: Number.isNaN(authorDateNumber) ? undefined : authorDateNumber,
       message,
     };
+  } catch (error) {
+    if (optionalGit) {
+      logger?.(ERR_COMMIT_DETAILS_NOT_AVAILABLE(JSON.stringify(error)));
+    } else {
+      throw new Error(ERR_COMMIT_DETAILS_NOT_AVAILABLE(JSON.stringify(error)));
+    }
   }
 }
 
 export async function getCiAndGitInfo({
   baseBranch,
   skipBaseCommitDiscovery,
+  optionalGit,
   logger,
 }: {
   baseBranch?: string;
   skipBaseCommitDiscovery?: boolean;
+  // If false, errors related to git commands will throw exceptions
+  optionalGit?: boolean;
   logger?: (message: string) => unknown;
 } = {}): Promise<CiInfo> {
   const isBuddy = process.env.BUDDY === "true";
@@ -217,7 +239,9 @@ export async function getCiAndGitInfo({
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
-        (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
+        (isPR
+          ? await getBaseCommitWithGit(baseBranch, branch, true)
+          : undefined);
 
     const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
@@ -243,7 +267,11 @@ export async function getCiAndGitInfo({
       executionId,
       actionExecutionId,
       invokerId: Number.isNaN(invokerId) ? undefined : invokerId,
-      commitDetails: await getCommitDetails(commit),
+      commitDetails: await getCommitDetailsWithGit({
+        commitHash: commit,
+        optionalGit,
+        logger,
+      }),
     } satisfies IBuddyCiInfo;
   }
 
@@ -271,7 +299,9 @@ export async function getCiAndGitInfo({
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
-        (isPR ? await getBaseCommit(baseBranch, branch, true) : undefined);
+        (isPR
+          ? await getBaseCommitWithGit(baseBranch, branch, true)
+          : undefined);
 
     const refType = (() => {
       const githubRefType = process.env.GITHUB_REF_TYPE?.toUpperCase();
@@ -290,7 +320,11 @@ export async function getCiAndGitInfo({
       pullRequestNumber,
       commit,
       baseCommit,
-      commitDetails: await getCommitDetails(commit),
+      commitDetails: await getCommitDetailsWithGit({
+        commitHash: commit,
+        optionalGit,
+        logger,
+      }),
       executionUrl: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
     } satisfies IGithubActionCiInfo;
   }
@@ -308,7 +342,7 @@ export async function getCiAndGitInfo({
     const baseCommit = withoutBaseCommit
       ? undefined
       : forcedBaseCommit ||
-        (isPR ? await getBaseCommit(baseBranch, branch) : undefined);
+        (isPR ? await getBaseCommitWithGit(baseBranch, branch) : undefined);
 
     const refType = (() => {
       if (isPR) return REF_TYPE.PULL_REQUEST;
@@ -331,17 +365,21 @@ export async function getCiAndGitInfo({
       pullRequestNumber,
       commit,
       baseCommit,
-      commitDetails: await getCommitDetails(commit),
+      commitDetails: await getCommitDetailsWithGit({
+        commitHash: commit,
+        optionalGit,
+        logger,
+      }),
       executionUrl: `${process.env.CIRCLE_BUILD_URL}`,
     } satisfies ICircleCiInfo;
   }
 
   const branch =
     forcedBranch ||
-    (await getBranchName({ optional: withoutBaseCommit, logger }));
+    (await getBranchNameWithGit({ optional: withoutBaseCommit, logger }));
   const commit =
     forcedCommit ||
-    (await getCommitHash({ optional: withoutBaseCommit, logger }));
+    (await getCommitHashWithGit({ optional: withoutBaseCommit, logger }));
 
   const refType = (() => {
     if (branch) return REF_TYPE.BRANCH;
@@ -359,9 +397,13 @@ export async function getCiAndGitInfo({
     baseCommit: withoutBaseCommit
       ? undefined
       : branch && branch !== baseBranch
-        ? forcedBaseCommit || (await getBaseCommit(baseBranch, branch))
+        ? forcedBaseCommit || (await getBaseCommitWithGit(baseBranch, branch))
         : undefined,
-    commitDetails: await getCommitDetails(commit),
+    commitDetails: await getCommitDetailsWithGit({
+      commitHash: commit,
+      optionalGit,
+      logger,
+    }),
   } satisfies ICustomCiInfo;
 }
 

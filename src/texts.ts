@@ -18,6 +18,8 @@ export const ERR_GETTING_COMMIT_HASH = (error: string) =>
 export const ERR_INVALID_COMMIT_HASH = (commit: string) =>
   `Invalid commit hash: ${commit}`;
 export const ERR_BASE_BRANCH_NOT_DEFINED = `Base branch is not defined`;
+export const ERR_COMMIT_DETAILS_NOT_AVAILABLE = (error: string) =>
+  `Could not get commit details: ${error}`;
 export const ERR_HEAD_BRANCH_NOT_DEFINED = `Head branch is not defined`;
 export const ERR_GETTING_BASE_COMMIT = (
   baseBranch: string,

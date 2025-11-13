@@ -204,11 +204,13 @@ async function getCommitDetailsWithGit({
 export async function getCiAndGitInfo({
   baseBranch,
   skipBaseCommitDiscovery,
+  skipCommitDetails,
   optionalGit,
   logger,
 }: {
   baseBranch?: string;
   skipBaseCommitDiscovery?: boolean;
+  skipCommitDetails?: boolean;
   // If false, errors related to git commands will throw exceptions
   optionalGit?: boolean;
   logger?: (message: string) => unknown;
@@ -267,10 +269,12 @@ export async function getCiAndGitInfo({
       executionId,
       actionExecutionId,
       invokerId: Number.isNaN(invokerId) ? undefined : invokerId,
-      commitDetails: await getCommitDetailsWithGit({
-        commitHash: commit,
-        optionalGit,
-        logger,
+      ...(!skipCommitDetails && {
+        commitDetails: await getCommitDetailsWithGit({
+          commitHash: commit,
+          optionalGit,
+          logger,
+        }),
       }),
     } satisfies IBuddyCiInfo;
   }
@@ -320,10 +324,12 @@ export async function getCiAndGitInfo({
       pullRequestNumber,
       commit,
       baseCommit,
-      commitDetails: await getCommitDetailsWithGit({
-        commitHash: commit,
-        optionalGit,
-        logger,
+      ...(!skipCommitDetails && {
+        commitDetails: await getCommitDetailsWithGit({
+          commitHash: commit,
+          optionalGit,
+          logger,
+        }),
       }),
       executionUrl: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
     } satisfies IGithubActionCiInfo;
@@ -365,10 +371,12 @@ export async function getCiAndGitInfo({
       pullRequestNumber,
       commit,
       baseCommit,
-      commitDetails: await getCommitDetailsWithGit({
-        commitHash: commit,
-        optionalGit,
-        logger,
+      ...(!skipCommitDetails && {
+        commitDetails: await getCommitDetailsWithGit({
+          commitHash: commit,
+          optionalGit,
+          logger,
+        }),
       }),
       executionUrl: `${process.env.CIRCLE_BUILD_URL}`,
     } satisfies ICircleCiInfo;
@@ -399,10 +407,12 @@ export async function getCiAndGitInfo({
       : branch && branch !== baseBranch
         ? forcedBaseCommit || (await getBaseCommitWithGit(baseBranch, branch))
         : undefined,
-    commitDetails: await getCommitDetailsWithGit({
-      commitHash: commit,
-      optionalGit,
-      logger,
+    ...(!skipCommitDetails && {
+      commitDetails: await getCommitDetailsWithGit({
+        commitHash: commit,
+        optionalGit,
+        logger,
+      }),
     }),
   } satisfies ICustomCiInfo;
 }

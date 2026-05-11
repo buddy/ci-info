@@ -33,6 +33,7 @@ export interface ISharedCiInfo {
   pullRequestNumber?: number;
   tag?: string;
   commit?: string;
+  baseBranch?: string;
   baseCommit?: string;
   commitDetails?: ICommitDetails;
 }

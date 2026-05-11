@@ -219,10 +219,11 @@ export async function getCiAndGitInfo({
   const isGithubAction = process.env.GITHUB_ACTIONS === "true";
   const isCircleCI = process.env.CIRCLECI === "true";
 
-  const forcedTag = process.env.FORCED_ENV_TAG;
-  const forcedBranch = process.env.FORCED_ENV_BRANCH;
-  const forcedCommit = process.env.FORCED_ENV_COMMIT;
-  const forcedBaseCommit = process.env.FORCED_ENV_BASE_COMMIT;
+  const forcedTag = process.env.BUDDY_TAG;
+  const forcedBranch = process.env.BUDDY_BRANCH;
+  const forcedCommit = process.env.BUDDY_COMMIT;
+  const forcedBaseCommit = process.env.BUDDY_BASE_COMMIT;
+  const forcedBaseBranch = process.env.BUDDY_BASE_BRANCH;
 
   const withoutBaseCommit = baseBranch === undefined || skipBaseCommitDiscovery;
 
@@ -238,12 +239,12 @@ export async function getCiAndGitInfo({
     const tag = forcedTag || process.env.BUDDY_RUN_TAG;
     const commit = forcedCommit || process.env.BUDDY_RUN_COMMIT;
 
-    const baseCommit = withoutBaseCommit
-      ? undefined
-      : forcedBaseCommit ||
-        (isPR
-          ? await getBaseCommitWithGit(baseBranch, branch, true)
-          : undefined);
+    let baseCommit: string | undefined = forcedBaseCommit;
+    if (!withoutBaseCommit && !baseCommit) {
+      baseCommit = isPR
+        ? await getBaseCommitWithGit(baseBranch, branch, true)
+        : undefined;
+    }
 
     const invokerId = Number(process.env.BUDDY_TRIGGERING_ACTOR_ID);
     const pipelineId = Number(process.env.BUDDY_PIPELINE_ID);
@@ -262,6 +263,7 @@ export async function getCiAndGitInfo({
       tag,
       pullRequestNumber: isPR ? pullRequestNumber : undefined,
       commit,
+      baseBranch: forcedBaseBranch,
       baseCommit,
       pipelineName: process.env.BUDDY_PIPELINE_NAME,
       pipelineId: Number.isNaN(pipelineId) ? undefined : pipelineId,
@@ -300,12 +302,12 @@ export async function getCiAndGitInfo({
         ? await getGithubPullRequestCommit(logger)
         : process.env.GITHUB_SHA);
 
-    const baseCommit = withoutBaseCommit
-      ? undefined
-      : forcedBaseCommit ||
-        (isPR
-          ? await getBaseCommitWithGit(baseBranch, branch, true)
-          : undefined);
+    let baseCommit: string | undefined = forcedBaseCommit;
+    if (!withoutBaseCommit && !baseCommit) {
+      baseCommit = isPR
+        ? await getBaseCommitWithGit(baseBranch, branch, true)
+        : undefined;
+    }
 
     const refType = (() => {
       const githubRefType = process.env.GITHUB_REF_TYPE?.toUpperCase();
@@ -323,6 +325,7 @@ export async function getCiAndGitInfo({
       tag,
       pullRequestNumber,
       commit,
+      baseBranch: forcedBaseBranch,
       baseCommit,
       ...(!skipCommitDetails && {
         commitDetails: await getCommitDetailsWithGit({
@@ -345,10 +348,12 @@ export async function getCiAndGitInfo({
     const tag = forcedTag || process.env.CIRCLE_TAG;
     const commit = forcedCommit || process.env.CIRCLE_SHA1;
 
-    const baseCommit = withoutBaseCommit
-      ? undefined
-      : forcedBaseCommit ||
-        (isPR ? await getBaseCommitWithGit(baseBranch, branch) : undefined);
+    let baseCommit: string | undefined = forcedBaseCommit;
+    if (!withoutBaseCommit && !baseCommit) {
+      baseCommit = isPR
+        ? await getBaseCommitWithGit(baseBranch, branch, true)
+        : undefined;
+    }
 
     const refType = (() => {
       if (isPR) return REF_TYPE.PULL_REQUEST;
@@ -370,6 +375,7 @@ export async function getCiAndGitInfo({
       tag,
       pullRequestNumber,
       commit,
+      baseBranch: forcedBaseBranch,
       baseCommit,
       ...(!skipCommitDetails && {
         commitDetails: await getCommitDetailsWithGit({
@@ -396,17 +402,21 @@ export async function getCiAndGitInfo({
 
   const refName = branch || undefined;
 
+  let baseCommit: string | undefined = forcedBaseCommit;
+  if (!withoutBaseCommit && !baseCommit) {
+    baseCommit = branch && branch !== baseBranch
+      ? await getBaseCommitWithGit(baseBranch, branch)
+      : undefined;
+  }
+
   return {
     ci: CI.NONE,
     refType,
     refName,
     branch,
     commit,
-    baseCommit: withoutBaseCommit
-      ? undefined
-      : branch && branch !== baseBranch
-        ? forcedBaseCommit || (await getBaseCommitWithGit(baseBranch, branch))
-        : undefined,
+    baseBranch: forcedBaseBranch,
+    baseCommit,
     ...(!skipCommitDetails && {
       commitDetails: await getCommitDetailsWithGit({
         commitHash: commit,

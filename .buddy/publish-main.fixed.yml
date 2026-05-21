@@ -72,13 +72,6 @@
     - /:/buddy-works/ci-info
     docker_image_name: library/node
     docker_image_tag: 22
-  - action: Git Push
-    type: PUSH
-    push_tags: true
-    target_branch: $BUDDY_RUN_BRANCH
-    isolated: true
-    targets:
-    - project_repository
   - action: Publish
     type: BUILD
     execute_commands:
@@ -90,3 +83,10 @@
     - /:/buddy-works/ci-info
     docker_image_name: library/node
     docker_image_tag: 22
+  - action: Git Push
+    type: PUSH
+    push_tags: true
+    target_branch: $BUDDY_RUN_BRANCH
+    isolated: true
+    targets:
+    - project_repository

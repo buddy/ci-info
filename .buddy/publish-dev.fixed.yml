@@ -12,6 +12,7 @@
     value: "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
     type: FILE
     file_path: "~/.npmrc"
+    disabled: true
   trigger_conditions:
   - trigger_condition: SUCCESS_PIPELINE
     project: ci-info

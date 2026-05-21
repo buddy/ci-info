@@ -3,8 +3,6 @@
   - refs/heads/*
   auto_clear_cache: true
   fail_on_prepare_env_warning: true
-  environments:
-  - release
   events:
   - type: PUSH
   actions:

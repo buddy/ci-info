@@ -80,6 +80,12 @@
     isolated: true
     targets:
     - project_repository
+  - action: Publish npm package
+    type: NPM_PUBLISH
+    integration: npm
+    npm_registry: NPM
+    access: PUBLIC
+    tag: rc
   - action: Publish
     type: BUILD
     execute_commands:

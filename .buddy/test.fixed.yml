@@ -1,19 +1,21 @@
 - pipeline: CI Integration Tests
   refs:
-    - refs/heads/*
-  events:
-    - type: PUSH
+  - refs/heads/*
   auto_clear_cache: true
   fail_on_prepare_env_warning: true
+  environments:
+  - release
+  events:
+  - type: PUSH
   actions:
-    - action: Build and Test
-      type: BUILD
-      docker_image_name: library/node
-      docker_image_tag: 22
-      execute_commands:
-        - pnpm install --frozen-lockfile
-        - pnpm run build
-        - pnpm test
-      setup_commands:
-        - npm i pnpm -g
-      shell: BASH
+  - action: Build and Test
+    type: BUILD
+    execute_commands:
+    - pnpm install --frozen-lockfile
+    - pnpm run build
+    - pnpm test
+    setup_commands:
+    - npm i pnpm -g
+    shell: BASH
+    docker_image_name: library/node
+    docker_image_tag: 22

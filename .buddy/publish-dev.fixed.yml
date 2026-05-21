@@ -88,6 +88,7 @@
     tag: rc
   - action: Publish
     type: BUILD
+    disabled: true
     execute_commands:
     - pnpm publish --no-git-checks --access public --tag rc
     setup_commands:

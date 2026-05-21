@@ -4,12 +4,18 @@
   always_from_scratch: true
   auto_clear_cache: true
   fail_on_prepare_env_warning: true
+  environments:
+  - release
+  variables:
+  - key: VERSION_BUMP_TYPE
+  - key: npmrc
+    value: "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
+    type: FILE
+    file_path: "~/.npmrc"
   trigger_conditions:
   - trigger_condition: SUCCESS_PIPELINE
     project: ci-info
     pipeline: CI Integration Tests
-  variables:
-  - key: VERSION_BUMP_TYPE
   actions:
   - action: Select version bump
     type: WAIT_FOR_VARIABLES
@@ -21,66 +27,66 @@
         major
   - action: Install packages
     type: BUILD
-    docker_image_name: library/node
-    docker_image_tag: 22
     execute_commands:
     - pnpm i
     setup_commands:
     - npm i pnpm -g
+    shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
-    shell: BASH
-  - action: Lint
-    type: BUILD
     docker_image_name: library/node
     docker_image_tag: 22
+  - action: Lint
+    type: BUILD
     execute_commands:
     - pnpm lint
     - pnpm lint:types
     setup_commands:
     - npm i pnpm -g
+    shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
-    shell: BASH
-  - action: Build
-    type: BUILD
     docker_image_name: library/node
     docker_image_tag: 22
+  - action: Build
+    type: BUILD
     execute_commands:
     - pnpm build
     setup_commands:
     - npm i pnpm -g
+    shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
-    shell: BASH
-  - action: Bump version
-    type: BUILD
     docker_image_name: library/node
     docker_image_tag: 22
+  - action: Bump version
+    type: BUILD
     execute_commands:
     - git config user.email "ci@buddy.works"
     - git config user.name "Buddy CI"
     - "pnpm version $VERSION_BUMP_TYPE -m \"chore(release): bump version to %s\""
     setup_commands:
     - npm i pnpm -g
+    shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
-    shell: BASH
+    docker_image_name: library/node
+    docker_image_tag: 22
   - action: Git Push
     type: PUSH
     push_tags: true
     target_branch: $BUDDY_RUN_BRANCH
+    isolated: true
     targets:
     - project_repository
-    isolated: true
   - action: Publish
     type: BUILD
-    docker_image_name: library/node
-    docker_image_tag: 22
     execute_commands:
     - pnpm publish --no-git-checks --access public
     setup_commands:
     - npm i pnpm -g
+    shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
-    shell: BASH
+    docker_image_name: library/node
+    docker_image_tag: 22

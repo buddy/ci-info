@@ -72,17 +72,6 @@
     - /:/buddy-works/ci-info
     docker_image_name: library/node
     docker_image_tag: 22
-  - action: Publish
-    type: BUILD
-    execute_commands:
-    - pnpm publish --no-git-checks --access public
-    setup_commands:
-    - npm i pnpm -g
-    shell: BASH
-    volume_mappings:
-    - /:/buddy-works/ci-info
-    docker_image_name: library/node
-    docker_image_tag: 22
   - action: Git Push
     type: PUSH
     push_tags: true

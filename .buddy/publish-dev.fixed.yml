@@ -24,54 +24,48 @@
         premajor
   - action: Install packages
     type: BUILD
-    execute_commands:
-    - pnpm i
-    setup_commands:
-    - npm i pnpm -g
+    commands: pnpm i
+    setup_commands: npm i pnpm -g
     shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
     docker_image_name: library/node
-    docker_image_tag: 22
+    docker_image_tag: "22"
   - action: Lint
     type: BUILD
-    execute_commands:
-    - pnpm lint
-    - pnpm lint:types
-    setup_commands:
-    - npm i pnpm -g
+    commands: |-
+      pnpm lint
+      pnpm lint:types
+    setup_commands: npm i pnpm -g
     shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
     docker_image_name: library/node
-    docker_image_tag: 22
+    docker_image_tag: "22"
   - action: Build
     type: BUILD
-    execute_commands:
-    - pnpm build
-    setup_commands:
-    - npm i pnpm -g
+    commands: pnpm build
+    setup_commands: npm i pnpm -g
     shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
     docker_image_name: library/node
-    docker_image_tag: 22
+    docker_image_tag: "22"
   - action: Bump version
     type: BUILD
-    execute_commands:
-    - git config user.email "ci@buddy.works"
-    - git config user.name "Buddy CI"
-    - "pnpm version --preid rc $VERSION_BUMP_TYPE -m \"chore(release): bump version to %s\""
-    setup_commands:
-    - npm i pnpm -g
+    commands: |-
+      git config user.email "ci@buddy.works"
+      git config user.name "Buddy CI"
+      pnpm version --preid rc $VERSION_BUMP_TYPE -m "chore(release): bump version to %s"
+    setup_commands: npm i pnpm -g
     shell: BASH
     volume_mappings:
     - /:/buddy-works/ci-info
     docker_image_name: library/node
-    docker_image_tag: 22
-  - action: Publish npm package
-    type: NPM_PUBLISH
-    integration: npm
+    docker_image_tag: "22"
+  - action: Stage npm package
+    type: NPM_STAGE
+    integration: npm-buddy
     npm_registry: NPM
     access: PUBLIC
     tag: rc
@@ -82,3 +76,11 @@
     isolated: true
     targets:
     - project_repository
+  - action: Send notification to Telegram Channel
+    type: TELEGRAM
+    content: |-
+      <b>ci-info: New dev release was staged</b>
+
+      Review it here: $BUDDY_ACTION_NPM_STAGE_APPROVE_URL
+    integration: telegram-buddy-front-alerts
+    parse_mode: HTML

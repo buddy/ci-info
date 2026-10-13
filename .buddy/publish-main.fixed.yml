@@ -68,9 +68,9 @@
     - /:/buddy-works/ci-info
     docker_image_name: library/node
     docker_image_tag: 22
-  - action: Publish npm package
-    type: NPM_PUBLISH
-    integration: npm
+  - action: Stage npm package
+    type: NPM_STAGE
+    integration: npm-buddy
     npm_registry: NPM
     access: PUBLIC
   - action: Git Push
@@ -80,3 +80,11 @@
     isolated: true
     targets:
     - project_repository
+  - action: Send notification to Telegram Channel
+    type: TELEGRAM
+    content: |-
+      <b>ci-info: New dev release was staged</b>
+
+      Review it here: $BUDDY_ACTION_NPM_STAGE_APPROVE_URL
+    integration: telegram-buddy-front-alerts
+    parse_mode: HTML
